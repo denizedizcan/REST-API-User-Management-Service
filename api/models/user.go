@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"github.com/badoux/checkmail"
 )
@@ -15,7 +14,7 @@ import (
 //user struct fields used in db
 type User struct {
 	UserID    uint64    `gorm:"primary_key;auto_increment" json:"user_id"`
-	Name      string    `gorm:"size:255;not null;unique" json:"name"`
+	Name      string    `gorm:"size:255;not null;" json:"name"`
 	Email     string    `gorm:"size:100;not null;unique" json:"email"`
 	Password  string    `gorm:"size:100;not null;" json:"password"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
@@ -31,94 +30,72 @@ func (u *User) Prepare() {
 
 // validate values
 func (u *User) Validate(action string) error {
-	switch strings.ToLower(action) {
-	case "login":
-		if u.Password == "" {
-			return errors.New("required password")
-		}
-		if u.Email == "" {
-			return errors.New("required email")
-		}
-		if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("invalid email")
-		}
-		return nil
-	case "create":
-		if u.Name == "" {
-			return errors.New("required Name")
-		}
-		if u.Password == "" {
-			return errors.New("required password")
-		}
-		if u.Email == "" {
-			return errors.New("required email")
-		}
-		if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("invalid email")
-		}
-		return nil
-	default:
-		if u.Name == "" {
-			return errors.New("required Name")
-		}
-		if u.Password == "" {
-			return errors.New("required password")
-		}
-		if u.Email == "" {
-			return errors.New("required email")
-		}
-		if err := checkmail.ValidateFormat(u.Email); err != nil {
-			return errors.New("invalid email")
-		}
-		return nil
+	if u.Name == "" {
+		return errors.New("required Name")
 	}
-}
-
-//Crate user
-func (u *User) SaveUser(db *gorm.DB) error {
-
-	if result := db.Create(&u); result.Error != nil {
-		return result.Error
+	if u.Password == "" {
+		return errors.New("required password")
+	}
+	if u.Email == "" {
+		return errors.New("required email")
+	}
+	if err := checkmail.ValidateFormat(u.Email); err != nil {
+		return errors.New("invalid email")
 	}
 	return nil
 }
 
-//login user
-func (u *User) LoginUser(db *gorm.DB) error {
-
-	var user User
-
-	if result := db.Model(User{}).Where("email = ?", u.Email).First(&user); result.Error != nil {
+//Crate user
+func (u *User) SaveUser(db *gorm.DB) error {
+	result := db.Where("email = ?", u.Email).FirstOrCreate(&u)
+	if result.Error != nil {
 		return result.Error
 	}
-	if u.Password != user.Password {
-		return errors.New("faild to login wrong password")
+	if result.RowsAffected == 0 {
+		return gorm.ErrInvalidData
 	}
 	return nil
 }
 
 //find user from db
 func (u *User) FindUser(db *gorm.DB) error {
-	if u.UserID != 0 {
-		if result := db.Model(&u).Preload(clause.Associations).Find(&u); result.Error != nil {
-			return result.Error
+	if result := db.Model(&u).Where("user_id = ?", u.UserID).First(&u); result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return errors.New("User with that id does not exist")
 		}
-	}
-	if result := db.Preload(clause.Associations).Model(&u).Where("email = ?", u.Email).Find(&u); result.Error != nil {
 		return result.Error
 	}
 	return nil
 }
 
-// find user data and return it
-func (u *User) FindUserData(db *gorm.DB) (*User, error) {
-	if u.UserID != 0 {
-		if result := db.Model(User{}).Preload(clause.Associations).Find(&u); result.Error != nil {
-			return &User{}, result.Error
+//Find All users
+func FindAllUsers(db *gorm.DB) ([]User, error) {
+	var users []User
+
+	if result := db.Model(User{}).Find(&users); result.Error != nil {
+		return []User{}, result.Error
+	}
+	return users, nil
+}
+
+//update user
+func (u *User) UpdateUser(m map[string]interface{}, db *gorm.DB) error {
+
+	if result := db.Model(User{}).Where("user_id = ?", u.UserID).Updates(m); result.Error != nil {
+
+		return result.Error
+	}
+	return nil
+}
+
+//Delete User
+func (u *User) DeleteUser(db *gorm.DB) error {
+
+	if result := db.Model(User{}).Where("user_id = ?", u.UserID).Delete(&u); result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return errors.New("User with that id does not exist")
 		}
+		return result.Error
 	}
-	if result := db.Model(User{}).Preload(clause.Associations).Where("email = ?", u.Email).Find(&u); result.Error != nil {
-		return &User{}, result.Error
-	}
-	return u, nil
+	return nil
 }

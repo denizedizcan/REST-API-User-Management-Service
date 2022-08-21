@@ -1,5 +1,5 @@
 # **REST-API-User-Management-Service**
-    *This repository contains the necessary codes &amp; info about REST API which is used to manage a user management service. It has some basic CRUD operations on user system. Using Postgres*
+*This repository contains the necessary codes &amp; info about REST API which is used to manage a user management service. It has some basic CRUD operations on user system. Using Postgres*
 
 # About the project
 

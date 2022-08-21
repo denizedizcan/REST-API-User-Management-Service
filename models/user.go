@@ -61,7 +61,7 @@ func (u *User) SaveUser(db *gorm.DB) error {
 func (u *User) FindUser(db *gorm.DB) error {
 	if result := db.Model(&u).Where("user_id = ?", u.UserID).First(&u); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return errors.New("User with that id does not exist")
+			return gorm.ErrRecordNotFound
 		}
 		return result.Error
 	}
@@ -93,7 +93,7 @@ func (u *User) DeleteUser(db *gorm.DB) error {
 
 	if result := db.Model(User{}).Where("user_id = ?", u.UserID).Delete(&u); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return errors.New("User with that id does not exist")
+			return gorm.ErrRecordNotFound
 		}
 		return result.Error
 	}

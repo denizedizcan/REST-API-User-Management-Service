@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/denizedizcan/REST-API-User-Management-Service/api/db"
-	"github.com/denizedizcan/REST-API-User-Management-Service/api/handlers"
+	"github.com/denizedizcan/REST-API-User-Management-Service/db"
+	"github.com/denizedizcan/REST-API-User-Management-Service/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )

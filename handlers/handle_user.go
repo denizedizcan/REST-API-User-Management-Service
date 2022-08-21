@@ -10,8 +10,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/denizedizcan/REST-API-User-Management-Service/api/models"
-	"github.com/denizedizcan/REST-API-User-Management-Service/api/responses"
+	"github.com/denizedizcan/REST-API-User-Management-Service/models"
+	"github.com/denizedizcan/REST-API-User-Management-Service/responses"
 	"github.com/gorilla/mux"
 )
 

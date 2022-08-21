@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/denizedizcan/REST-API-User-Management-Service/api/models"
+	"github.com/denizedizcan/REST-API-User-Management-Service/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

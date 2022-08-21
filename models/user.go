@@ -11,7 +11,7 @@ import (
 	"github.com/badoux/checkmail"
 )
 
-//user struct fields used in db
+// user struct fields used in db
 type User struct {
 	UserID    uint64    `gorm:"primary_key;auto_increment" json:"user_id"`
 	Name      string    `gorm:"size:255;not null;" json:"name"`
@@ -20,7 +20,7 @@ type User struct {
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 }
 
-//user prepare values to insert or update
+// user prepare values to insert or update
 func (u *User) Prepare() {
 	u.Name = html.EscapeString(strings.TrimSpace(u.Name))
 	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
@@ -45,7 +45,7 @@ func (u *User) Validate(action string) error {
 	return nil
 }
 
-//Crate user
+// Crate user
 func (u *User) SaveUser(db *gorm.DB) error {
 	result := db.Where("email = ?", u.Email).FirstOrCreate(&u)
 	if result.Error != nil {
@@ -57,7 +57,7 @@ func (u *User) SaveUser(db *gorm.DB) error {
 	return nil
 }
 
-//find user from db
+// find user from db
 func (u *User) FindUser(db *gorm.DB) error {
 	if result := db.Model(&u).Where("user_id = ?", u.UserID).First(&u); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -68,7 +68,7 @@ func (u *User) FindUser(db *gorm.DB) error {
 	return nil
 }
 
-//Find All users
+// Find All users
 func FindAllUsers(db *gorm.DB) ([]User, error) {
 	var users []User
 
@@ -78,24 +78,30 @@ func FindAllUsers(db *gorm.DB) ([]User, error) {
 	return users, nil
 }
 
-//update user
+// update user
 func (u *User) UpdateUser(m map[string]interface{}, db *gorm.DB) error {
-
-	if result := db.Model(User{}).Where("user_id = ?", u.UserID).Updates(m); result.Error != nil {
-
+	result := db.Model(User{}).Where("user_id = ?", u.UserID).Updates(m)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return gorm.ErrRecordNotFound
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrInvalidData
+	}
+	if result.Error != nil {
 		return result.Error
 	}
+
 	return nil
 }
 
-//Delete User
+// Delete User
 func (u *User) DeleteUser(db *gorm.DB) error {
-
-	if result := db.Model(User{}).Where("user_id = ?", u.UserID).Delete(&u); result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return gorm.ErrRecordNotFound
-		}
+	result := db.Model(User{}).Where("user_id = ?", u.UserID).Delete(&u)
+	if result.Error != nil {
 		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrInvalidData
 	}
 	return nil
 }

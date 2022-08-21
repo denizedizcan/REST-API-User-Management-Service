@@ -11,16 +11,8 @@ ADD . .
 RUN go mod download
 # build proglication
 # CGO_ENABLED is disabled for cross system compilation
-RUN CGO_ENABLED=0 GOOS=linux GODEBUG=netdns=1 GOARCH=amd64 go build -o prog .
-# build stage #1
-FROM alpine:latest AS stage1
-# create work directory
-RUN mkdir /prog
-# switch to work directory
-WORKDIR /prog
-# copy proglication artifacts to current directory
-COPY --from=stage0 /prog/prog .
+RUN go build -o prog .
 # expose port
 EXPOSE 8080
 # run proglication
-CMD ["sh", "-c", "./prog"]
+CMD ["./prog"]

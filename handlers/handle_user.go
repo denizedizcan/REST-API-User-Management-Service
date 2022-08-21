@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -79,7 +78,7 @@ func (h handler) ShowUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, &user)
 }
 
-//find all users
+// find all users
 func (h handler) ShowAllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := models.FindAllUsers(h.DB)
 
@@ -109,7 +108,7 @@ func (h handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	user.UserID = id
 	err = user.DeleteUser(h.DB)
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, gorm.ErrInvalidData) {
 		responses.ERROR(w, http.StatusNotFound, errors.New("User with that id does not exist"))
 		return
 	}
@@ -126,6 +125,11 @@ func (h handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	params := mux.Vars(r)
 	id, err := strconv.ParseUint(params["id"], 10, 64)
+
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+	}
+
 	var user models.User
 	user.UserID = id
 
@@ -141,8 +145,19 @@ func (h handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(m)
-	if err := user.UpdateUser(m, h.DB); err != nil {
+	err = user.UpdateUser(m, h.DB)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		responses.ERROR(w, http.StatusNotFound, errors.New("User with that id does not exist"))
+		return
+	}
+
+	if errors.Is(err, gorm.ErrInvalidData) {
+		responses.ERROR(w, http.StatusNotFound, errors.New("User with that email already exists"))
+		return
+	}
+
+	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}

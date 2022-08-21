@@ -12,13 +12,11 @@ import (
 
 // start the app and handle routes
 func main() {
-	godotenv.Load()
-
 	fmt.Println("Starting App..")
+	godotenv.Load()
 	DB := db.Init()
 	h := handlers.New(DB)
 	router := mux.NewRouter()
-
 	router.HandleFunc("/users", handlers.SetMiddlewareJSON(h.CreateUser)).Methods("PUT")
 	router.HandleFunc("/users/{id}", handlers.SetMiddlewareJSON(h.UpdateUser)).Methods("PATCH")
 	router.HandleFunc("/users/{id}", handlers.SetMiddlewareJSON(h.DeleteUser)).Methods("DELETE")

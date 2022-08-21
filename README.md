@@ -16,6 +16,8 @@
 5. Update User
     - Users can update their data
 
+---
+
 ### Prerequisites and Installation
 
 - #### **Docker:** 

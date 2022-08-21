@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/denizedizcan/REST-API-User-Management-Service/db"
@@ -13,10 +12,8 @@ import (
 
 // start the app and handle routes
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	godotenv.Load()
+
 	fmt.Println("Starting App..")
 	DB := db.Init()
 	h := handlers.New(DB)

@@ -3,18 +3,18 @@
 
 # About the project
 
-    *The functions of this service are as follows;*
+*The functions of this service are as follows;*
 
-    1. List Users
-        - API should be able to list all users.
-    2. Add User
-        - API can add users.
-    3. Show One User
-        - API can show one user by id.
-    4. Delete User
-        - API can remove a user by id.
-    5. Update User
-        - Users can update their data
+1. List Users
+    - API should be able to list all users.
+2. Add User
+    - API can add users.
+3. Show One User
+    - API can show one user by id.
+4. Delete User
+    - API can remove a user by id.
+5. Update User
+    - Users can update their data
 
 ### Prerequisites and Installation
 

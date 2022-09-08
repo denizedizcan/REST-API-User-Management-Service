@@ -5,6 +5,5 @@
 Dockerfile
 Makefile
 LICENSE
-**/*.md
-**/*_test.go
+
 **/*.env
